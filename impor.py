@@ -43,6 +43,96 @@ def to_excel_bytes(dfs: Dict[str, pd.DataFrame]) -> bytes:
         for sheet_name, df_sheet in dfs.items():
             df_sheet.to_excel(writer, sheet_name=sheet_name, index=False)
     return output.getvalue()
+# -------------------- PAGE AUTHENTIFICATION -------------------- #
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "login"  # valeurs possibles: "login", "signup"
+
+# ---- Style CSS personnalisé ---- #
+st.markdown("""
+    <style>
+        .login-container {
+            max-width: 420px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            background-color: #f9fafc;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1E3A8A;
+            margin-bottom: 20px;
+        }
+        .stTextInput > div > div > input {
+            border: 2px solid #1E40AF;
+            border-radius: 10px;
+        }
+        .stButton > button {
+            background-color: #1E40AF;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+        }
+        .stButton > button:hover {
+            background-color: #1D4ED8;
+            color: white;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---- Authentification ---- #
+if not st.session_state.logged_in:
+    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
+
+    if st.session_state.auth_mode == "login":
+        st.markdown("<div class='login-title'>🔐 Connexion</div>", unsafe_allow_html=True)
+        username = st.text_input("👤 Nom d'utilisateur")
+        password = st.text_input("🔒 Mot de passe", type="password")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Se connecter"):
+                if username.upper() in st.session_state.users and st.session_state.users[username.upper()] == password:
+                    st.session_state.logged_in = True
+                    st.success("✅ Connexion réussie !")
+                    st.rerun()
+                else:
+                    st.error("❌ Nom d'utilisateur ou mot de passe incorrect.")
+
+        with col2:
+            if st.button("Créer un compte"):
+                st.session_state.auth_mode = "signup"
+                st.rerun()
+
+    elif st.session_state.auth_mode == "signup":
+        st.markdown("<div class='login-title'>📝 Créer un compte</div>", unsafe_allow_html=True)
+        new_username = st.text_input("👤 entrer le nom d'utilisateur")
+        new_password = st.text_input("🔒 entrer le mot de passe", type="password")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Enregistrer"):
+                if new_username.strip() == "" or new_password.strip() == "":
+                    st.error("⚠️ Nom d'utilisateur et mot de passe requis.")
+                elif new_username.upper() in st.session_state.users:
+                    st.error("⚠️ Ce nom d'utilisateur existe déjà.")
+                else:
+                    st.session_state.users[new_username.upper()] = new_password
+                    st.success("🎉 Compte créé avec succès ! Connectez-vous maintenant.")
+                    st.session_state.auth_mode = "login"
+                    st.rerun()
+
+        with col2:
+            if st.button("Retour"):
+                st.session_state.auth_mode = "login"
+                st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
 # -------------------- PAGE CONNEXION -------------------- #
 if not st.session_state.logged_in:
     st.markdown("""
@@ -156,7 +246,7 @@ try:
 except Exception as e:
     st.error(f"Impossible de lire le fichier : {e}")
     st.stop()
-
+df["produits"] = df["produits"].astype(str)
 # Nettoyage des noms de colonnes
 df.columns = [str(c).strip() for c in df.columns]
 
@@ -197,12 +287,17 @@ year_range = st.sidebar.slider("Période (années)", min_value=min_year, max_val
 df_f = df[(df[col_produits].isin(selected_produits)) & (df[col_annee].between(year_range[0],year_range[1]))].copy()
 
 # ------------------- INDICATEURS ------------------- #
-df_f["Coverage"] = df_f[col_prod]/df_f[col_demande] if col_prod and col_demande else np.nan
+if col_prod and col_demande:
+    df_f["Coverage"] = df_f[col_prod]/df_f[col_demande]
+else:
+    df_f["Coverage"] = np.nan
+#df_f["Coverage"] = df_f[col_prod]/df_f[col_demande] if col_prod and col_demande else np.nan
 df_f["Import_Dependency"] = df_f[col_import]/df_f[col_demande] if col_import and col_demande else np.nan
 metrics = [col_taux, col_import, col_prod, col_demande, col_superficie, col_rendement, col_invest]
 metrics = [m for m in metrics if m is not None]
 for m in metrics:
-    df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change()*100
+    if m in df_f.columns:
+        df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change(fill_method=None) * 100
 
 # ------------------- ONGLETS ------------------- #
 tabs = st.tabs([
@@ -365,10 +460,5 @@ with tabs[4]:
         file_name="resultats_import_substitution.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-import os
-
-if _name_ == "_main_":
-    port = int(os.environ.get("PORT", 5000))
-    impor.run(host="0.0.0.0", port=port)
 
 

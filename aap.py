@@ -43,29 +43,128 @@ def to_excel_bytes(dfs: Dict[str, pd.DataFrame]) -> bytes:
         for sheet_name, df_sheet in dfs.items():
             df_sheet.to_excel(writer, sheet_name=sheet_name, index=False)
     return output.getvalue()
+# -------------------- PAGE AUTHENTIFICATION -------------------- #
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "login"  # valeurs possibles: "login", "signup"
+
+# ---- Style CSS personnalisé ---- #
+st.markdown("""
+    <style>
+        .login-container {
+            max-width: 420px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            background-color: #f9fafc;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1E3A8A;
+            margin-bottom: 20px;
+        }
+        .stTextInput > div > div > input {
+            border: 2px solid #1E40AF;
+            border-radius: 10px;
+        }
+        .stButton > button {
+            background-color: #1E40AF;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+        }
+        .stButton > button:hover {
+            background-color: #1D4ED8;
+            color: white;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---- Authentification ---- #
+if not st.session_state.logged_in:
+    st.markdown("<div class='login-container'>", unsafe_allow_html=True)
+
+    if st.session_state.auth_mode == "login":
+        st.markdown("<div class='login-title'>🔐 Connexion</div>", unsafe_allow_html=True)
+        username = st.text_input("👤 Nom d'utilisateur")
+        password = st.text_input("🔒 Mot de passe", type="password")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Se connecter"):
+                if username.upper() in st.session_state.users and st.session_state.users[username.upper()] == password:
+                    st.session_state.logged_in = True
+                    st.success("✅ Connexion réussie !")
+                    st.rerun()
+                else:
+                    st.error("❌ Nom d'utilisateur ou mot de passe incorrect.")
+
+        with col2:
+            if st.button("Créer un compte"):
+                st.session_state.auth_mode = "signup"
+                st.rerun()
+
+    elif st.session_state.auth_mode == "signup":
+        st.markdown("<div class='login-title'>📝 Créer un compte</div>", unsafe_allow_html=True)
+        new_username = st.text_input("👤 Choisissez un nom d'utilisateur")
+        new_password = st.text_input("🔒 Choisissez un mot de passe", type="password")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Enregistrer"):
+                if new_username.strip() == "" or new_password.strip() == "":
+                    st.error("⚠️ Nom d'utilisateur et mot de passe requis.")
+                elif new_username.upper() in st.session_state.users:
+                    st.error("⚠️ Ce nom d'utilisateur existe déjà.")
+                else:
+                    st.session_state.users[new_username.upper()] = new_password
+                    st.success("🎉 Compte créé avec succès ! Connectez-vous maintenant.")
+                    st.session_state.auth_mode = "login"
+                    st.rerun()
+
+        with col2:
+            if st.button("Retour"):
+                st.session_state.auth_mode = "login"
+                st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
+
 # -------------------- PAGE CONNEXION -------------------- #
 if not st.session_state.logged_in:
     st.markdown("""
         <style>
         .login-container {
-            max-width: 420px;
+            max-width: 480px;
             margin: auto;
-            margin-top: 8%;
-            padding: 45px;
-            border-radius: 15px;
+            margin-top: 6%;
+            padding: 50px 40px;
+            border-radius: 18px;
             background: linear-gradient(135deg, #1a73e8, #004080);
             color: white;
             box-shadow: 0px 8px 25px rgba(0,0,0,0.35);
             text-align: center;
+            font-family: 'Segoe UI', sans-serif;
         }
         .login-container h1 {
-            font-size: 30px;
-            margin-bottom: 15px;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .login-container h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #cfd8dc;
+            font-weight: normal;
         }
         .login-container p {
             font-size: 15px;
-            margin-bottom: 25px;
-            color: #dfe6e9;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            color: #e3f2fd;
         }
         .stTextInput > div > div > input {
             border-radius: 10px;
@@ -75,25 +174,33 @@ if not st.session_state.logged_in:
         .stButton>button {
             width: 100%;
             border-radius: 12px;
-            background: linear-gradient(135deg, #2196F3, #0d47a1);
-            color: white;
+            background: #ffffff;
+            color: #1a73e8;
             font-size: 18px;
             font-weight: bold;
             height: 48px;
-            border: none;
+            border: 2px solid #1a73e8;
             transition: all 0.3s ease-in-out;
         }
         .stButton>button:hover {
-            background: linear-gradient(135deg, #42a5f5, #1565c0);
+            background: #1a73e8;
+            color: white;
             transform: scale(1.03);
             cursor: pointer;
+        }
+        .footer {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #cfd8dc;
         }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<div class='login-container'>", unsafe_allow_html=True)
-    st.markdown("<h1>🔑 Connexion</h1>", unsafe_allow_html=True)
-    st.markdown("<p>Bienvenue sur l’outil d’aide à la décision pour <br><b>mesurer la dynamique de l’import-substitution au Cameroun</b></p>", unsafe_allow_html=True)
+
+    st.markdown("<h1>🇨🇲 Import-Substitution</h1>", unsafe_allow_html=True)
+    st.markdown("<h2>Outil d’aide à la décision - Cameroun</h2>", unsafe_allow_html=True)
+    st.markdown("<p>👋 Bienvenue sur la plateforme officielle d’analyse et suivi de la dynamique de l’import-substitution au Cameroun.</p>", unsafe_allow_html=True)
 
     username = st.text_input("👤 Nom d'utilisateur")
     password = st.text_input("🔒 Mot de passe", type="password")
@@ -106,7 +213,9 @@ if not st.session_state.logged_in:
         else:
             st.error("❌ Nom d'utilisateur ou mot de passe incorrect.")
 
+    st.markdown("<p class='footer'>Développé par <b>MINEPAT</b> & <b>ENSPY</b>.</p>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
+
     st.stop()
 
 # -------------------- PAGE ACCUEIL -------------------- #
@@ -138,7 +247,7 @@ try:
 except Exception as e:
     st.error(f"Impossible de lire le fichier : {e}")
     st.stop()
-
+df["produits"] = df["produits"].astype(str)
 # Nettoyage des noms de colonnes
 df.columns = [str(c).strip() for c in df.columns]
 
@@ -179,12 +288,17 @@ year_range = st.sidebar.slider("Période (années)", min_value=min_year, max_val
 df_f = df[(df[col_produits].isin(selected_produits)) & (df[col_annee].between(year_range[0],year_range[1]))].copy()
 
 # ------------------- INDICATEURS ------------------- #
-df_f["Coverage"] = df_f[col_prod]/df_f[col_demande] if col_prod and col_demande else np.nan
+if col_prod and col_demande:
+    df_f["Coverage"] = df_f[col_prod]/df_f[col_demande]
+else:
+    df_f["Coverage"] = np.nan
+#df_f["Coverage"] = df_f[col_prod]/df_f[col_demande] if col_prod and col_demande else np.nan
 df_f["Import_Dependency"] = df_f[col_import]/df_f[col_demande] if col_import and col_demande else np.nan
 metrics = [col_taux, col_import, col_prod, col_demande, col_superficie, col_rendement, col_invest]
 metrics = [m for m in metrics if m is not None]
 for m in metrics:
-    df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change()*100
+    if m in df_f.columns:
+        df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change(fill_method=None) * 100
 
 # ------------------- ONGLETS ------------------- #
 tabs = st.tabs([
@@ -347,3 +461,5 @@ with tabs[4]:
         file_name="resultats_import_substitution.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+
