@@ -236,7 +236,7 @@ with col3:
     st.image("minepat-logo.png", width=150)
 
 # ------------------- CHARGEMENT AUTOMATIQUE FICHIER ------------------- #
-file_path ="donnees\BD_Global.xlsx"
+file_path = r"C:\Users\UltraBook 3.1\Desktop\STREAMLIT - IMPORTSUBSTITUTION\BD_Global.xlsx"
 if not os.path.exists(file_path):
     st.error(f"⚠️ Fichier introuvable : {file_path}")
     st.stop()
