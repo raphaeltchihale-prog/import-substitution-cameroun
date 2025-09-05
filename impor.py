@@ -365,3 +365,10 @@ with tabs[4]:
         file_name="resultats_import_substitution.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+import os
+
+if _name_ == "_main_":
+    port = int(os.environ.get("PORT", 5000))
+    impor.run(host="0.0.0.0", port=port)
+
+
