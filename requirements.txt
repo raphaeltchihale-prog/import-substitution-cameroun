@@ -3,3 +3,4 @@ pandas
 openpyxl
 plotly==5.22.0
 streamlit-option-menu
+xlsxwriter
