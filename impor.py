@@ -276,7 +276,7 @@ if col_annee:
 # Supprimer les lignes invalides
 df = df.dropna(subset=[col_produits, col_annee])
 st.success("✅ Fichier BD_Global importé automatiquement et nettoyé avec succès !")
-st.dataframe(df.head(5))
+#st.dataframe(df.head(5))
 
 # ------------------- FILTRES ------------------- #
 st.sidebar.header("🔎 Filtres")

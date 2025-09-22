@@ -110,8 +110,8 @@ if not st.session_state.logged_in:
 
     elif st.session_state.auth_mode == "signup":
         st.markdown("<div class='login-title'>📝 Créer un compte</div>", unsafe_allow_html=True)
-        new_username = st.text_input("👤 Choisissez un nom d'utilisateur")
-        new_password = st.text_input("🔒 Choisissez un mot de passe", type="password")
+        new_username = st.text_input("👤 entrer le nom d'utilisateur")
+        new_password = st.text_input("🔒 entrer le mot de passe", type="password")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -133,7 +133,6 @@ if not st.session_state.logged_in:
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
-
 # -------------------- PAGE CONNEXION -------------------- #
 if not st.session_state.logged_in:
     st.markdown("""
@@ -237,18 +236,24 @@ with col3:
     st.image("minepat-logo.png", width=150)
 
 # ------------------- CHARGEMENT AUTOMATIQUE FICHIER ------------------- #
-file_path = r"C:\Users\UltraBook 3.1\Desktop\STREAMLIT - IMPORTSUBSTITUTION\BD_Global.xlsx"
+
+# ------------------- CHARGEMENT AUTOMATIQUE FICHIER ------------------- #
+file_path = "BD_Global.xlsx"
+
 if not os.path.exists(file_path):
     st.error(f"⚠️ Fichier introuvable : {file_path}")
     st.stop()
 
 try:
-    df = pd.read_excel(file_path)
+    # ouvrir le fichier dans un contexte with pour qu'il soit automatiquement fermé
+    with pd.ExcelFile(file_path) as xls:
+        df = pd.read_excel(xls)
 except Exception as e:
     st.error(f"Impossible de lire le fichier : {e}")
     st.stop()
+
+# Nettoyage des noms de colonnes et types
 df["produits"] = df["produits"].astype(str)
-# Nettoyage des noms de colonnes
 df.columns = [str(c).strip() for c in df.columns]
 
 # Détection colonnes
@@ -276,7 +281,7 @@ if col_annee:
 # Supprimer les lignes invalides
 df = df.dropna(subset=[col_produits, col_annee])
 st.success("✅ Fichier BD_Global importé automatiquement et nettoyé avec succès !")
-st.dataframe(df.head(5))
+#st.dataframe(df.head(5))
 
 # ------------------- FILTRES ------------------- #
 st.sidebar.header("🔎 Filtres")
