@@ -7,15 +7,7 @@ from io import BytesIO
 from typing import List, Dict
 import os
 from streamlit_option_menu import option_menu
-from fpdf import FPDF
 
-pdf = FPDF()
-#pdf.add_page()
-
-# Charger une police Unicode
-pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
-pdf.set_font("DejaVu", "", 12)
-# -------------------- CONFIG -------------------- #
 st.set_page_config(
     page_title="🇨🇲 Import-Substitution Cameroun — Outil décisionnel",
     page_icon="🌍",
