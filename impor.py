@@ -7,7 +7,14 @@ from io import BytesIO
 from typing import List, Dict
 import os
 from streamlit_option_menu import option_menu
+from fpdf import FPDF
 
+pdf = FPDF()
+#pdf.add_page()
+
+# Charger une police Unicode
+pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+pdf.set_font("DejaVu", "", 12)
 # -------------------- CONFIG -------------------- #
 st.set_page_config(
     page_title="🇨🇲 Import-Substitution Cameroun — Outil décisionnel",
@@ -289,16 +296,16 @@ df_f = df[(df[col_produits].isin(selected_produits)) & (df[col_annee].between(ye
 
 # ------------------- INDICATEURS ------------------- #
 if col_prod and col_demande:
-    df_f["Coverage"] = df_f[col_prod]/df_f[col_demande]
+    df_f["Taux de couverture"] = df_f[col_prod]/df_f[col_demande]
 else:
-    df_f["Coverage"] = np.nan
+    df_f["Taux de couverture"] = np.nan
 #df_f["Coverage"] = df_f[col_prod]/df_f[col_demande] if col_prod and col_demande else np.nan
-df_f["Import_Dependency"] = df_f[col_import]/df_f[col_demande] if col_import and col_demande else np.nan
+df_f["Taux d'import-substitution"] = df_f[col_import]/df_f[col_demande] if col_import and col_demande else np.nan
 metrics = [col_taux, col_import, col_prod, col_demande, col_superficie, col_rendement, col_invest]
 metrics = [m for m in metrics if m is not None]
 for m in metrics:
     if m in df_f.columns:
-        df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change(fill_method=None) * 100
+        df_f[f"{m}_croissance_%"] = df_f.groupby(col_produits)[m].pct_change(fill_method=None) * 100
 
 # ------------------- ONGLETS ------------------- #
 tabs = st.tabs([
@@ -329,7 +336,7 @@ with tabs[1]:
                       title=f"Évolution du Taux d'import-substitution ({metric})")
         st.plotly_chart(fig2, use_container_width=True)
 
-        growth_col = f"{metric}_growth_%"
+        growth_col = f"{metric}"
         if growth_col in df_f.columns:
             fig3 = px.line(df_f, x=col_annee, y=growth_col, color=col_produits, markers=True,
                            title=f"Taux de croissance du Taux d'import-substitution ({metric})")
@@ -420,26 +427,107 @@ with tabs[2]:
 
 # ====== Onglet Synthèse & Recommandations ====== #
 with tabs[3]:
-    st.header("📝 Synthèse par filière et recommandations")
+    #st.header("📝 Synthèse par filière et recommandations")
+    # ---- Guide d'utilisation interactif ---- #
+    with st.expander("📖 Guide d’utilisation de l’outil Import-Substitution Cameroun", expanded=True):
+        st.markdown("### 1️⃣ Objectif de l’application")
+        st.markdown("""
+        Cet outil interactif vous permet de suivre et d’analyser la dynamique de l’import-substitution des produits agricoles et industriels au Cameroun. Il fournit :
+
+        - Une analyse descriptive des données.
+        - Des indicateurs de performance par produit et par année.
+        - Des visualisations interactives pour faciliter la compréhension.
+        - Une synthèse avec recommandations pour chaque filière.
+        """)
+
+        st.markdown("### 2️⃣ Connexion à l’application")
+        st.markdown("""
+        - **Page de connexion :** Entrez votre nom d’utilisateur et votre mot de passe pour accéder à votre espace personnel.
+        - **Création de compte :** Si vous n’avez pas encore de compte, cliquez sur “Créer un compte”, renseignez vos identifiants et enregistrez.
+        - **Sécurité :** Chaque utilisateur dispose d’un espace sécurisé pour accéder aux données et analyses.
+        """)
+
+        st.markdown("### 3️⃣ Importation et préparation des données")
+        st.markdown("""
+        - Le fichier de données **BD_Global.xlsx** est chargé automatiquement à l’ouverture.
+        - L’application nettoie les données pour corriger les formats numériques et supprimer les lignes invalides.
+        - Si le fichier est introuvable ou corrompu, un message d’erreur apparaît et empêche l’accès aux analyses.
+        """)
+
+        st.markdown("### 4️⃣ Filtres interactifs")
+        st.markdown("""
+        Dans la barre latérale, vous pouvez :
+        - Sélectionner un ou plusieurs produits à analyser.
+        - Choisir la période (années) souhaitée pour l’étude.
+        - Les filtres mettent à jour automatiquement toutes les visualisations et analyses, pour que les résultats reflètent exactement votre sélection.
+        """)
+
+        st.markdown("### 5️⃣ Visualisations et analyses")
+        st.markdown("""
+        L’application comporte plusieurs onglets interactifs :
+
+        **a) 📊 Descriptif**
+        - Affiche les premières lignes des données filtrées.
+        - Fournit des statistiques descriptives : moyenne, écart-type, minimum, maximum.
+        - Histogrammes de distribution pour la production par produit, afin de visualiser les différences entre les filières.
+
+        **b) 📈 Analyse globale du Taux d’import-substitution**
+        - Graphiques comparant les indicateurs choisis (production, importation, demande).
+        - Courbes montrant l’évolution dans le temps.
+        - Calcul automatique du taux de croissance pour certains indicateurs, pour évaluer la dynamique des filières.
+
+        **c) 📊 Tableau de Bord**
+        - Statistiques : Graphiques cumulés par année et par produit pour visualiser importations, demande et production locale.
+        - Analyse dynamique : Projection de la production locale selon un taux de substitution ajustable via le curseur.
+        - Diagrammes en barres et camemberts pour visualiser la répartition par produit et par filière.
+
+        **d) 📝 Synthèse & Recommandations**
+        - Résumé des performances par produit : taux de couverture, taux d’import-substitution, rendement, investissements.
+        - Recommandations automatiques :
+          - Augmenter la production nationale si le taux de couverture est faible.
+          - Limiter les importations si le taux d’import-substitution est élevé.
+          - Améliorer le rendement si nécessaire.
+          - Accroître les investissements si les niveaux sont faibles.
+        - Visualisation radar pour comparer rapidement les indicateurs entre les filières.
+
+        **e) 📤 Export**
+        - Télécharger les résultats filtrés et la synthèse au format Excel (**resultats_import_substitution.xlsx**).
+        - Permet de partager les analyses avec d’autres parties prenantes ou pour inclusion dans des rapports officiels.
+        """)
+
+        st.markdown("### 6️⃣ Conseils d’utilisation")
+        st.markdown("""
+        - Toujours filtrer vos produits et votre période pour obtenir des analyses ciblées.
+        - Vérifier les visualisations pour détecter les tendances et anomalies.
+        - Utiliser la synthèse et le radar pour identifier les filières à renforcer ou soutenir.
+        - Exporter les données pour préparer des rapports officiels ou pour analyses complémentaires.
+        """)
+
+        st.markdown("### calcul de Synthèse et les recommandations par filière")
+    # ---- Calcul de la synthèse ---- #
     synth = df_f.groupby(col_produits).agg({
-        "Coverage":"mean",
-        "Import_Dependency":"mean",
+        "Taux de couverture":"mean",
+        "Taux d'import-substitution":"mean",
         col_rendement:"mean" if col_rendement else "mean",
         col_invest:"mean" if col_invest else "mean",
     }).reset_index()
 
+    # ---- Recommandations ---- #
     recs = []
     for idx,row in synth.iterrows():
         r = []
-        if row["Coverage"] < 0.8: r.append("Augmenter production nationale")
-        if row["Import_Dependency"] > 0.3: r.append("Limiter importations")
+        if row["Taux de couverture"] < 0.8: r.append("Augmenter production nationale")
+        if row["Taux d'import-substitution"] > 0.3: r.append("Limiter importations")
         if col_rendement and row[col_rendement] < 2: r.append("Améliorer rendement")
         if col_invest and row[col_invest] < 1e9: r.append("Accroître investissements")
         recs.append(", ".join(r) if r else "OK")
     synth["Recommandations"] = recs
+
+    # ---- Affichage tableau synthèse ---- #
     st.dataframe(synth)
 
-    radar_metrics = ["Coverage","Import_Dependency"]
+    # ---- Radar synthèse filière ---- #
+    radar_metrics = ["Taux de couverture","Taux d'import-substitution"]
     if col_rendement: radar_metrics.append(col_rendement)
     if col_invest: radar_metrics.append(col_invest)
 
@@ -451,15 +539,84 @@ with tabs[3]:
     st.plotly_chart(fig,use_container_width=True)
 
 # ====== Onglet Export ====== #
+import pandas as pd
+import io
+import streamlit as st
+import os
+
+# ---- Fonction pour convertir dictionnaire en Excel ---- #
+def to_excel_bytes(dfs_dict):
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        for sheet_name, df in dfs_dict.items():
+            if isinstance(df, str):
+                # Mettre le texte dans un DataFrame pour l’export
+                df_to_write = pd.DataFrame([df], columns=["Contenu"])
+            else:
+                df_to_write = df
+            df_to_write.to_excel(writer, sheet_name=sheet_name, index=False)
+        #writer.save()
+    return output.getvalue()
+
+# export des resultats
+
 with tabs[4]:
     st.header("📤 Export des résultats")
-    export_dict = {"Filtrage": df_f, "Synthèse": synth}
+
+    # ---- Lire le fichier original si disponible ---- #
+    file_path = "BD_Global.xlsx"
+    if os.path.exists(file_path):
+        try:
+            df_original = pd.read_excel(file_path)
+        except Exception as e:
+            st.error(f"Impossible de lire le fichier original : {e}")
+            df_original = None
+    else:
+        st.warning(f"Fichier original introuvable : {file_path}")
+        df_original = None
+
+    # ---- Préparer le rapport global ---- #
+    rapport_global = "Résumé global de l'application Import-Substitution Cameroun\n\n"
+    rapport_global += f"Nombre de produits analysés : {len(df_f[col_produits].unique())}\n"
+    rapport_global += f"Période : {df_f[col_annee].min()} - {df_f[col_annee].max()}\n"
+    rapport_global += f"Moyenne Taux de couverture : {synth['Taux de couverture'].mean():.2f}\n"
+    taux_import = synth["Taux d'import-substitution"].mean()
+    rapport_global += f"Moyenne Taux d'import-substitution : {taux_import:.2f}\n"
+
+    #rapport_global += f"Moyenne Taux d'import-substitution : {synth[\"Taux d'import-substitution\"].mean():.2f}\n"
+
+    # ---- Ajouter le guide d'utilisation ---- #
+    guide_utilisation = """Guide d’utilisation de l’outil Import-Substitution Cameroun
+1. Objectif de l’application
+Cet outil interactif vous permet de suivre et d’analyser la dynamique de l’import-substitution des produits agricoles et industriels au Cameroun. Il fournit :
+- Une analyse descriptive des données.
+- Des indicateurs de performance par produit et par année.
+- Des visualisations interactives pour faciliter la compréhension.
+- Une synthèse avec recommandations pour chaque filière.
+...
+6. Conseils d’utilisation
+- Toujours filtrer vos produits et votre période pour obtenir des analyses ciblées.
+- Vérifier les visualisations pour détecter les tendances et anomalies.
+- Utiliser la synthèse et le radar pour identifier les filières à renforcer ou soutenir.
+- Exporter les données pour préparer des rapports officiels ou pour analyses complémentaires.
+"""
+
+    # ---- Créer le dictionnaire à exporter ---- #
+    export_dict = {
+        "BD_Global_Original": df_original if df_original is not None else "Fichier original manquant",
+        "Filtrage": df_f,
+        "Synthèse": synth,
+        "Guide_Utilisation": guide_utilisation,
+        "Rapport_Global": rapport_global
+    }
+
+    # ---- Générer le fichier Excel ---- #
     bytes_xlsx = to_excel_bytes(export_dict)
+
     st.download_button(
-        label="💾 Télécharger les résultats en Excel",
+        label="💾 Télécharger le rapport complet en Excel",
         data=bytes_xlsx,
-        file_name="resultats_import_substitution.xlsx",
+        file_name="rapport_import_substitution_global.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
 

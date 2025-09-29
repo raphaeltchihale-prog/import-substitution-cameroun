@@ -132,18 +132,18 @@ df_f = df[(df[col_produits].isin(selected_produits)) & (df[col_annee].between(ye
 
 # Indicateurs calculés
 if col_prod and col_demande:
-    df_f["Coverage"] = df_f[col_prod] / df_f[col_demande]
+    df_f["Taux de couverture"] = df_f[col_prod] / df_f[col_demande]
 else:
-    df_f["Coverage"] = np.nan
+    df_f["Taux de couverture"] = np.nan
 if col_import and col_demande:
-    df_f["Import_Dependency"] = df_f[col_import] / df_f[col_demande]
+    df_f["Taux d'import-substitution"] = df_f[col_import] / df_f[col_demande]
 else:
-    df_f["Import_Dependency"] = np.nan
+    df_f["Taux d'import-substitution"] = np.nan
 
 metrics = [col_taux, col_import, col_prod, col_demande, col_superficie, col_rendement, col_invest] 
 metrics = [m for m in metrics if m is not None]
 for m in metrics:
-    df_f[f"{m}_growth_%"] = df_f.groupby(col_produits)[m].pct_change() * 100
+    df_f[f"{m}croissance_"] = df_f.groupby(col_produits)[m].pct_change() * 100
 
 # ------------------- ONGLETS ------------------- #
 tabs = st.tabs([
@@ -158,8 +158,8 @@ with tabs[7]:
     for p in selected_produits:
         sub = df_f[df_f[col_produits] == p]
         last_row = sub[sub[col_annee] == sub[col_annee].max()]
-        coverage = float(last_row["Coverage"]) if "Coverage" in last_row else np.nan
-        import_dep = float(last_row["Import_Dependency"]) if "Import_Dependency" in last_row else np.nan
+        coverage = float(last_row["Taux de couverture"]) if "Taux de couverture" in last_row else np.nan
+        import_dep = float(last_row["Taux d'import-substitution"]) if "Taux d'import-substitution" in last_row else np.nan
         rec = []
         if coverage < 0.5:
             rec.append("Renforcer la production nationale")
@@ -243,8 +243,8 @@ with tabs[2]:
         st.plotly_chart(fig, use_container_width=True)
 
         # Heatmap variations annuelles
-        df_policy_trend["growth_%"] = df_policy_trend.groupby(col_produits)[col_policy_trend].pct_change() * 100
-        pivot_policy = df_policy_trend.pivot(index=col_produits, columns=col_annee, values="growth_%")
+        df_policy_trend["croissance_%"] = df_policy_trend.groupby(col_produits)[col_policy_trend].pct_change() * 100
+        pivot_policy = df_policy_trend.pivot(index=col_produits, columns=col_annee, values="croissance_%")
         st.write(f"Heatmap de % variation annuelle de {policy_for_trend}")
         try:
             hm = px.imshow(pivot_policy.fillna(0), labels=dict(x="Année", y="Filière", color="% Variation"), text_auto=True,
