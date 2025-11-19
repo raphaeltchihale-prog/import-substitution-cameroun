@@ -125,14 +125,14 @@ df_f = df[
 # 📊 TABLEAU DE BORD
 # -----------------------------------------------------
 tabs = st.tabs([
-    "📊 Analyse & Tableau de Bord",
-    "🧮 Synthèse & Taux d’importation",
-    "📤 Export"
+    "Analyse & Tableau de Bord",
+    "Scénarios",
+    "A propos"
 ])
 
 # ====== Onglet Fusionné : Analyse & Tableau de Bord ====== #
 with tabs[0]:
-    st.header("📊 Analyse & Tableau de Bord")
+    st.header("Analyse & Tableau de Bord")
 
     # Filtre pour choisir l'indicateur à tracer
     indicateur = st.selectbox(
@@ -211,7 +211,7 @@ with tabs[0]:
 
 # ====== Onglet Synthèse ====== #
 with tabs[1]:
-    st.header("🧮 Synthèse — Importation et Production par Produit et Année")
+    st.header("Scénarios")
 
     # Agrégation des données par année et produit
     synth = df_f.groupby([col_annee, col_produits]).agg({
@@ -230,7 +230,7 @@ with tabs[1]:
 
 # ====== Onglet 4 : Export ====== #
 with tabs[2]:
-    st.header("📤 Export des Résultats")
+    st.header("A propos")
 
     export_dict = {
         "Filtrage": df_f,
@@ -245,3 +245,13 @@ with tabs[2]:
         file_name="import_substitution_filtrees.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+st.markdown("""
+<hr style="margin-top:40px;">
+<div style="text-align:center; font-size:14px; color:gray;">
+    <p><strong>Ministère de l’Économie, de la Planification et de l’Aménagement du Territoire (MINEPAT)</strong></p>
+    <p>Direction Générale de l’Économie — Cellule Informatique & Statistiques</p>
+    <p>Outil d’aide à la décision pour le suivi de la politique nationale d’import-substitution</p>
+    <p>© 2025 République du Cameroun — Tous droits réservés</p>
+</div>
+""", unsafe_allow_html=True)

@@ -125,14 +125,14 @@ df_f = df[
 # 📊 TABLEAU DE BORD
 # -----------------------------------------------------
 tabs = st.tabs([
-    "📊 Analyse & Tableau de Bord",
-    "🧮 Synthèse & Taux d’importation",
-    "📤 Export"
+    "Analyse & Tableau de Bord",
+    "Scénarios",
+    "A propos"
 ])
 
 # ====== Onglet Fusionné : Analyse & Tableau de Bord ====== #
 with tabs[0]:
-    st.header("📊 Analyse & Tableau de Bord")
+    st.header("Analyse & Tableau de Bord")
 
     # Filtre pour choisir l'indicateur à tracer
     indicateur = st.selectbox(
@@ -211,7 +211,7 @@ with tabs[0]:
 
 # ====== Onglet Synthèse ====== #
 with tabs[1]:
-    st.header("🧮 Synthèse — Importation et Production par Produit et Année")
+    st.header("Scénarios")
 
     # Agrégation des données par année et produit
     synth = df_f.groupby([col_annee, col_produits]).agg({
@@ -230,7 +230,7 @@ with tabs[1]:
 
 # ====== Onglet 4 : Export ====== #
 with tabs[2]:
-    st.header("📤 Export des Résultats")
+    st.header("A propos")
 
     export_dict = {
         "Filtrage": df_f,
