@@ -21,6 +21,7 @@ col_annee = find_column(df, ["année", "annee"])
 col_import = find_column(df, ["import"])
 col_prod = find_column(df, ["production"])
 col_taux = find_column(df, ["taux"])
+col_cible = find_column(df, ["cible_piisah_production"])
 
 # Nettoyage
 for c in df.columns:
@@ -47,11 +48,41 @@ for produit in selected:
     st.subheader(f"📌 Filière : {produit}")
     df_p = df_f[df_f[col_produits] == produit].sort_values(col_annee)
 
-    # Graphs
     fig = go.Figure()
+
+    # 🔵 Importation = COURBE
     if indicateur == "Importation":
-        fig.add_trace(go.Bar(x=df_p[col_annee], y=df_p[col_import], name="Importation"))
+        fig.add_trace(go.Scatter(
+            x=df_p[col_annee],
+            y=df_p[col_import],
+            mode="lines+markers",
+            name="Importation",
+            line=dict(width=3)
+        ))
+
+    # 🟧 Production = BAR CHART + CIBLE
     else:
-        fig.add_trace(go.Bar(x=df_p[col_annee], y=df_p[col_prod], name="Production"))
+        fig.add_trace(go.Bar(
+            x=df_p[col_annee],
+            y=df_p[col_prod],
+            name="Production"
+        ))
+
+        # 🔴 Cible PIISAH affichée UNIQUEMENT pour Production
+        if col_cible and col_cible in df_p.columns:
+            fig.add_trace(go.Scatter(
+                x=df_p[col_annee],
+                y=df_p[col_cible],
+                mode='lines+markers',
+                name="Cible PIISAH",
+                line=dict(color='red', dash='dash'),
+                marker=dict(size=8)
+            ))
+
+    fig.update_layout(
+        yaxis_title=indicateur,
+        xaxis_title="Année",
+        template='plotly_white'
+    )
 
     st.plotly_chart(fig, use_container_width=True)
