@@ -104,19 +104,26 @@ footer {visibility: hidden;}
     font-size: 13px;
     color: gray;
 }
-</style>
-""", unsafe_allow_html=True)
+/* STYLE DU BOUTON STREAMLIT */
+button[kind="primary"] {
+    background: linear-gradient(90deg, #004a99, #0073e6) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    border-radius: 12px !important;
+    padding: 14px 20px !important;
+    width: 100% !important;
+    box-shadow: 0 4px 12px rgba(0, 70, 140, 0.25) !important;
+    border: none !important;
+}
 
-# --------------------------------------------
-# NAVBAR MODERNE
-# --------------------------------------------
-st.markdown("""
-<div class="navbar">
-    <div class="nav-item active">Accueil</div>
-    <div class="nav-item">Tableau de Bord</div>
-    <div class="nav-item">Scénarios</div>
-    <div class="nav-item">À Propos</div>
-</div>
+button[kind="primary"]:hover {
+    background: linear-gradient(90deg, #0055b3, #0080ff) !important;
+    color: white !important;
+}
+
+
+</style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------
@@ -199,11 +206,13 @@ st.markdown("""
 # --------------------------------------------
 # BOUTON POUR ALLER AU TABLEAU DE BORD
 # --------------------------------------------
-st.write("")
 center_btn = st.columns([3, 2, 3])
+
 with center_btn[1]:
-    if st.button("🚀 Accéder au Tableau de Bord", use_container_width=True):
+    if st.button("🚀 Accéder au Tableau de Bord", type="primary", use_container_width=True):
         st.switch_page("pages/2_Tableau_de_Bord.py")
+
+
 
 # --------------------------------------------
 # FOOTER

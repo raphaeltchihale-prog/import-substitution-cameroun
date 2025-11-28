@@ -18,8 +18,8 @@ df.columns = [str(c).strip() for c in df.columns]
 # Détection colonnes
 col_produits = find_column(df, ["produit", "produits", "filière"])
 col_annee = find_column(df, ["année", "annee"])
-col_import = find_column(df, ["import"])
-col_prod = find_column(df, ["production"])
+col_import = find_column(df, ["Importation"])
+col_prod = find_column(df, ["Production nationale"])
 col_taux = find_column(df, ["taux"])
 col_cible = find_column(df, ["cible_piisah_production"])
 
