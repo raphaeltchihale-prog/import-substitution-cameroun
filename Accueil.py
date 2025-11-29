@@ -1,6 +1,9 @@
 import streamlit as st
 
 # --------------------------------------------
+# HEADER PERSONNALISÉ
+# --------------------------------------------
+# --------------------------------------------
 # CONFIG PAGE
 # --------------------------------------------
 st.set_page_config(
@@ -8,6 +11,50 @@ st.set_page_config(
     page_icon="🌍",
     layout="wide"
 )
+# --------------------------------------------
+# HEADER FIXE
+# --------------------------------------------
+# HEADER FIXE STYLE SITE WEB
+# --------------------------------------------
+st.markdown("""
+<style>
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #002b55;
+    color: white;
+    padding: 10px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 9999;
+    border-bottom: 2px solid #0059b3;
+}
+
+.fixed-header img {
+    border-radius: 4px;
+}
+
+.page-content {
+    margin-top: 90px; /* espace pour que le header ne cache pas le contenu */
+}
+</style>
+
+<div class="fixed-header">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <img src='assets/cameroun-seal.png' width='50'>
+        <div style="font-size:24px; font-weight:700;">Import Substitution Cameroun</div>
+    </div>
+    <div style="font-size:16px; opacity:0.85;">
+        Ministère de l’Économie, de la Planification et de l’Aménagement du Territoire
+    </div>
+</div>
+
+<div class="page-content"></div>
+""", unsafe_allow_html=True)
+
 
 # --------------------------------------------
 # CSS GLOBAL + NAVBAR MODERNE
