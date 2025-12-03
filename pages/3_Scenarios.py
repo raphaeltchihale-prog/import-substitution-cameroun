@@ -20,13 +20,25 @@ if not os.path.exists(file_path):
 df = pd.read_excel(file_path)
 df.columns = [str(c).strip() for c in df.columns]
 
+# Colonnes principales
 col_produits = find_column(df, ["produit", "filière"])
 col_annee = find_column(df, ["année"])
 col_taux = find_column(df, ["taux"])
 
+# Colonnes TC (production / importation)
+col_prod = find_column(df, ["production", "prod"])
+col_imp = find_column(df, ["importation", "import"])
+
 df[col_taux] = clean_numeric(df[col_taux])
 df[col_annee] = clean_numeric(df[col_annee])
-df = df.dropna(subset=[col_produits, col_annee, col_taux])
+df[col_prod] = clean_numeric(df[col_prod])
+df[col_imp] = clean_numeric(df[col_imp])
+
+df = df.dropna(subset=[col_produits, col_annee, col_taux, col_prod, col_imp])
+
+# Calcul du taux de couverture
+df["TC"] = df[col_prod] / (df[col_prod] + df[col_imp])
+df["TC"] = df["TC"].fillna(0)
 
 # -----------------------------
 # Sidebar choix
@@ -42,7 +54,7 @@ year_max = int(df[col_annee].max())
 horizon = st.sidebar.slider("Horizon de projection :", year_max+1, year_max+10, year_max+5)
 
 # -----------------------------
-# Sous-ensemble pour le produit
+# Sous-ensemble produit
 # -----------------------------
 df_p = df[df[col_produits] == produit_sel].sort_values(col_annee)
 
@@ -50,24 +62,23 @@ df_p = df[df[col_produits] == produit_sel].sort_values(col_annee)
 last_year = df_p[col_annee].max()
 last_value = df_p[df_p[col_annee] == last_year][col_taux].values[0]
 
+# Dernier TC
+last_TC = df_p[df_p[col_annee] == last_year]["TC"].values[0]
+
 years_proj = list(range(last_year, horizon + 1))
+n_years = len(years_proj)
 
 # -----------------------------
-# Génération des scénarios
+# Scénarios pour le taux d’IS
 # -----------------------------
-
 def scenario_reference(start, n):
-    """Croissance lente +1.5% par an."""
     return [start * (1 + 0.015)**i for i in range(n)]
 
 def scenario_optimal(start, n):
-    """Croissance forte +6% par an."""
     return [start * (1 + 0.06)**i for i in range(n)]
 
 def choc_exogene(start, n):
-    """Baisse initiale (-3%) puis reprise lente (+2%)."""
-    vals = []
-    v = start
+    vals, v = [], start
     for i in range(n):
         if i == 0:
             v *= 0.97
@@ -77,10 +88,7 @@ def choc_exogene(start, n):
     return vals
 
 def choc_endogene(start, n):
-    """Quasi-stagnation (±0,5%)."""
     return [start * (1 + 0.005*i) for i in range(n)]
-
-n_years = len(years_proj)
 
 sc_ref = scenario_reference(last_value, n_years)
 sc_opt = scenario_optimal(last_value, n_years)
@@ -88,11 +96,19 @@ sc_exo = choc_exogene(last_value, n_years)
 sc_endo = choc_endogene(last_value, n_years)
 
 # -----------------------------
-# Affichage graphique
+# Scénarios pour le Taux de Couverture
+# Même logique de croissance appliquée au dernier TC
+# -----------------------------
+TC_ref = scenario_reference(last_TC, n_years)
+TC_opt = scenario_optimal(last_TC, n_years)
+TC_exo = choc_exogene(last_TC, n_years)
+TC_endo = choc_endogene(last_TC, n_years)
+
+# -----------------------------
+# 📊 Graphique 1 : Import-substitution
 # -----------------------------
 fig = go.Figure()
 
-# Historique
 fig.add_trace(go.Scatter(
     x=df_p[col_annee],
     y=df_p[col_taux],
@@ -101,26 +117,71 @@ fig.add_trace(go.Scatter(
     line=dict(width=3)
 ))
 
-# Scénarios
-fig.add_trace(go.Scatter(
-    x=years_proj, y=sc_ref, name="Scénario de référence", mode="lines", line=dict(dash="dash")
-))
-fig.add_trace(go.Scatter(
-    x=years_proj, y=sc_opt, name="Scénario optimal", mode="lines", line=dict(dash="dot")
-))
-fig.add_trace(go.Scatter(
-    x=years_proj, y=sc_exo, name="Choc exogène", mode="lines", line=dict(dash="dashdot")
-))
-fig.add_trace(go.Scatter(
-    x=years_proj, y=sc_endo, name="Choc endogène", mode="lines", line=dict(dash="longdash")
-))
+fig.add_trace(go.Scatter(x=years_proj, y=sc_ref, name="Référence", mode="lines", line=dict(dash="dash")))
+fig.add_trace(go.Scatter(x=years_proj, y=sc_opt, name="Optimal", mode="lines", line=dict(dash="dot")))
+fig.add_trace(go.Scatter(x=years_proj, y=sc_exo, name="Choc exogène", mode="lines", line=dict(dash="dashdot")))
+fig.add_trace(go.Scatter(x=years_proj, y=sc_endo, name="Choc endogène", mode="lines", line=dict(dash="longdash")))
 
 fig.update_layout(
-    title=f"Scénarios de projection du taux d’import-substitution – {produit_sel}",
+    title=f"Scénarios du taux d’import-substitution – {produit_sel}",
     xaxis_title="Année",
     yaxis_title="Taux (%)",
-    template="plotly_white",
-    legend_title="Scénarios"
+    template="plotly_white"
 )
 
 st.plotly_chart(fig, use_container_width=True)
+# -----------------------------
+# 📊 Graphique 2 : Taux de couverture nationale
+# -----------------------------
+fig_TC = go.Figure()
+
+fig_TC.add_trace(go.Scatter(
+    x=df_p[col_annee],
+    y=df_p["TC"],
+    mode="lines+markers",
+    name="TC Historique",
+    line=dict(width=3, color="#0047AB")   # bleu foncé
+))
+
+fig_TC.add_trace(go.Scatter(
+    x=years_proj, 
+    y=TC_ref, 
+    name="TC Référence", 
+    mode="lines", 
+    line=dict(dash="dash", color="#2E8B57")   # vert
+))
+
+fig_TC.add_trace(go.Scatter(
+    x=years_proj, 
+    y=TC_opt, 
+    name="TC Optimal", 
+    mode="lines", 
+    line=dict(dash="dot", color="#FF8C00")    # orange
+))
+
+fig_TC.add_trace(go.Scatter(
+    x=years_proj, 
+    y=TC_exo, 
+    name="TC Choc exogène", 
+    mode="lines", 
+    line=dict(dash="dashdot", color="#800080")  # violet
+))
+
+fig_TC.add_trace(go.Scatter(
+    x=years_proj, 
+    y=TC_endo, 
+    name="TC Choc endogène", 
+    mode="lines", 
+    line=dict(dash="longdash", color="#B22222")  # rouge sombre
+))
+
+fig_TC.update_layout(
+    title=f"Scénarios du Taux de Couverture Nationale – {produit_sel}",
+    xaxis_title="Année",
+    yaxis_title="TC (ratio)",
+    template="plotly_white",
+)
+
+st.plotly_chart(fig_TC, use_container_width=True)
+
+
