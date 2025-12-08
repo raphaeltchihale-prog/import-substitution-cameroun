@@ -99,17 +99,28 @@ for produit in selected:
         ))
 
     # Cible PIISAH si Importation et Taux décochés
-    if col_cible and col_cible in df_p.columns:
+    if col_cible:
+    # Créer une valeur fictive pour 2026
+        df_cible = pd.DataFrame({
+            col_annee: [2026],
+            col_produits: [produit],
+            col_cible: [df_p[col_prod].iloc[-1] * 1.05]  # valeur fictive 5% au-dessus de la dernière production
+        })
+
+    # Fusion avec df_p uniquement si nécessaire
+        df_p_cible = pd.concat([df_p, df_cible], ignore_index=True)
+
         if not show_import and not show_taux and show_prod:
             fig.add_trace(go.Scatter(
-                x=df_p[col_annee],
-                y=df_p[col_cible],
+                x=df_p_cible[col_annee],
+                y=df_p_cible[col_cible],
                 mode='lines+markers',
                 name="Cible PIISAH",
                 line=dict(color=colors["Cible PIISAH"], dash='dash'),
                 marker=dict(size=8),
                 yaxis="y1"
             ))
+
 
     # Layout avec axes multiples
     fig.update_layout(

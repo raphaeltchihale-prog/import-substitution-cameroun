@@ -8,61 +8,84 @@ st.set_page_config(
     page_icon="🌍",
     layout="wide"
 )
+import streamlit as st
+import base64
 
-# --------------------------------------------
-# HEADER FIXE
-# --------------------------------------------
-st.markdown("""
+# -----------------------------
+# Fonction pour convertir image en base64
+# -----------------------------
+def img_to_base64(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+logo1_base64 = img_to_base64("assets/cameroun-seal.png")
+logo2_base64 = img_to_base64("assets/minepat-logo.png")
+
+# -----------------------------
+# Header fixe style administratif
+# -----------------------------
+st.markdown(f"""
 <style>
-.fixed-header {
+.fixed-header {{
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #002b55;
+    background: linear-gradient(90deg, #003366, #0059b3);
     color: white;
-    padding: 10px 30px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+    border-bottom: 3px solid #FFD700;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}}
+
+.fixed-header .line1 {{
+    font-size: 20px;
+    font-weight: 700;
+}}
+
+.fixed-header .line2 {{
+    font-size: 16px;
+    font-style: italic;
+    margin-top: 2px;
+}}
+
+.fixed-header .line3 {{
+    font-size: 18px;
+    margin-top: 5px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    z-index: 9999;
-    border-bottom: 2px solid #0059b3;
-}
+    gap: 10px;
+    justify-content: center;
+}}
 
-.fixed-header img {
-    border-radius: 4px;
-}
+.fixed-header img {{
+    width: 50px;
+}}
 
-.page-content {
-    margin-top: 90px; /* espace pour que le header ne cache pas le contenu */
-}
+.page-content {{
+    margin-top: 130px; /* espace pour que le header ne cache pas le contenu */
+}}
 </style>
 
 <div class="fixed-header">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <img src='assets/cameroun-seal.png' width='50'>
-        <div style="font-size:24px; font-weight:700;">Import Substitution Cameroun</div>
-    </div>
-    <div style="font-size:16px; opacity:0.85;">
-        Ministère de l’Économie, de la Planification et de l’Aménagement du Territoire
+    <div class="line1">République du Cameroun</div>
+    <div class="line2">Paix – Travail – Patrie</div>
+    <div class="line3">
+        <img src="data:image/png;base64,{logo1_base64}">
+        Ministère de l’Économie, de la Planification et de l’Aménagement du Territoire (MINEPAT)
+        <img src="data:image/png;base64,{logo2_base64}">
     </div>
 </div>
 
 <div class="page-content"></div>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------
-# LOGOS ENTRE LE HEADER ET LE HERO  (MODIFIÉ)
-# -------------------------------------------------
-col_logo1, col_logo2, col_logo3 = st.columns([1.5, 2, 1.5])
-with col_logo1:
-    st.image("assets/cameroun-seal.png", width=110)
-with col_logo3:
-    st.image("assets/minepat-logo.png", width=110)
-
-st.write("")  # petit espace visuel
-
-# --------------------------------------------
 # CSS GLOBAL
 # --------------------------------------------
 st.markdown("""
