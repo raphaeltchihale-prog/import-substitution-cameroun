@@ -51,7 +51,20 @@ produit_sel = st.sidebar.selectbox("Choisir une filière :", produits)
 year_min = int(df[col_annee].min())
 year_max = int(df[col_annee].max())
 
-horizon = st.sidebar.slider("Horizon de projection :", year_max+1, year_max+10, year_max+5)
+# Au lieu de :
+# horizon = st.sidebar.slider("Horizon de projection :", year_max, year_max+2, year_max)
+
+# On met 2026 par défaut
+default_horizon = 2026
+if default_horizon < year_max:  # sécurité si 2026 < dernière année du dataset
+    default_horizon = year_max
+
+horizon = st.sidebar.slider(
+    "Horizon de projection :",
+    year_max,
+    year_max + 2,
+    value=default_horizon  # <-- valeur par défaut
+)
 
 # -----------------------------
 # Sous-ensemble produit

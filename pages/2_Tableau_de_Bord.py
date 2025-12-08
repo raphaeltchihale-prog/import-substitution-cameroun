@@ -6,7 +6,9 @@ from utils import find_column, clean_numeric
 
 st.set_page_config(page_title="Tableau de Bord", page_icon="📊", layout="wide")
 
+# -----------------------------
 # Chargement des données
+# -----------------------------
 file_path = "BD_Global.xlsx"
 if not os.path.exists(file_path):
     st.error("⚠️ Fichier BD_Global.xlsx introuvable.")
@@ -29,7 +31,9 @@ for c in df.columns:
         df[c] = clean_numeric(df[c])
 df = df.dropna(subset=[col_produits, col_annee])
 
-# Sidebar
+# -----------------------------
+# Sidebar - filtres
+# -----------------------------
 st.sidebar.header("🔎 Filtres")
 produits = sorted(df[col_produits].unique())
 selected = st.sidebar.multiselect("Filières :", produits, default=produits[:3])
@@ -39,10 +43,23 @@ years = st.sidebar.slider("Années :", min_y, max_y, (min_y, max_y))
 
 df_f = df[(df[col_produits].isin(selected)) & (df[col_annee].between(years[0], years[1]))]
 
+# -----------------------------
 # Page
+# -----------------------------
 st.title("📊 Analyse & Tableau de Bord")
 
-indicateur = st.selectbox("Indicateur :", ("Importation", "Production"))
+# Checkbox pour chaque série
+show_import = st.checkbox("Importation", value=True)
+show_prod = st.checkbox("Production", value=True)
+show_taux = st.checkbox("Taux", value=True)
+
+# Couleurs
+colors = {
+    "Importation": "blue",
+    "Production": "orange",
+    "Taux": "green",
+    "Cible PIISAH": "red"
+}
 
 for produit in selected:
     st.subheader(f"📌 Filière : {produit}")
@@ -50,39 +67,74 @@ for produit in selected:
 
     fig = go.Figure()
 
-    # 🔵 Importation = COURBE
-    if indicateur == "Importation":
-        fig.add_trace(go.Scatter(
+    # Diagrammes en bar pour Importation et Production
+    if show_import:
+        fig.add_trace(go.Bar(
             x=df_p[col_annee],
             y=df_p[col_import],
-            mode="lines+markers",
             name="Importation",
-            line=dict(width=3)
+            marker_color=colors["Importation"],
+            yaxis="y1"
         ))
 
-    # 🟧 Production = BAR CHART + CIBLE
-    else:
+    if show_prod:
         fig.add_trace(go.Bar(
             x=df_p[col_annee],
             y=df_p[col_prod],
-            name="Production"
+            name="Production",
+            marker_color=colors["Production"],
+            yaxis="y1"
         ))
 
-        # 🔴 Cible PIISAH affichée UNIQUEMENT pour Production
-        if col_cible and col_cible in df_p.columns:
+    # Ligne Taux avec axe Y séparé
+    if show_taux:
+        fig.add_trace(go.Scatter(
+            x=df_p[col_annee],
+            y=df_p[col_taux],
+            mode="lines+markers",
+            name="Taux",
+            line=dict(color=colors["Taux"], width=3, dash='dot'),
+            marker=dict(size=6),
+            yaxis="y2"
+        ))
+
+    # Cible PIISAH si Importation et Taux décochés
+    if col_cible and col_cible in df_p.columns:
+        if not show_import and not show_taux and show_prod:
             fig.add_trace(go.Scatter(
                 x=df_p[col_annee],
                 y=df_p[col_cible],
                 mode='lines+markers',
                 name="Cible PIISAH",
-                line=dict(color='red', dash='dash'),
-                marker=dict(size=8)
+                line=dict(color=colors["Cible PIISAH"], dash='dash'),
+                marker=dict(size=8),
+                yaxis="y1"
             ))
 
+    # Layout avec axes multiples
     fig.update_layout(
-        yaxis_title=indicateur,
-        xaxis_title="Année",
-        template='plotly_white'
+        xaxis=dict(title="Année"),
+        yaxis=dict(
+            title="Importation / Production",
+            showgrid=True,
+            zeroline=True
+        ),
+        yaxis2=dict(
+            title="Taux",
+            overlaying="y",
+            side="right",
+            showgrid=False
+        ),
+        barmode='group',
+        template='plotly_white',
+        legend=dict(
+            orientation="v",
+            x=1.05,
+            y=1,
+            bordercolor="Black",
+            borderwidth=1
+        ),
+        margin=dict(l=50, r=80, t=40, b=40)
     )
 
     st.plotly_chart(fig, use_container_width=True)

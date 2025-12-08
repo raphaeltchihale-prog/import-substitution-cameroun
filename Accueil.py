@@ -1,9 +1,6 @@
 import streamlit as st
 
 # --------------------------------------------
-# HEADER PERSONNALISÉ
-# --------------------------------------------
-# --------------------------------------------
 # CONFIG PAGE
 # --------------------------------------------
 st.set_page_config(
@@ -11,10 +8,9 @@ st.set_page_config(
     page_icon="🌍",
     layout="wide"
 )
+
 # --------------------------------------------
 # HEADER FIXE
-# --------------------------------------------
-# HEADER FIXE STYLE SITE WEB
 # --------------------------------------------
 st.markdown("""
 <style>
@@ -55,9 +51,19 @@ st.markdown("""
 <div class="page-content"></div>
 """, unsafe_allow_html=True)
 
+# -------------------------------------------------
+# LOGOS ENTRE LE HEADER ET LE HERO  (MODIFIÉ)
+# -------------------------------------------------
+col_logo1, col_logo2, col_logo3 = st.columns([1.5, 2, 1.5])
+with col_logo1:
+    st.image("assets/cameroun-seal.png", width=110)
+with col_logo3:
+    st.image("assets/minepat-logo.png", width=110)
+
+st.write("")  # petit espace visuel
 
 # --------------------------------------------
-# CSS GLOBAL + NAVBAR MODERNE
+# CSS GLOBAL
 # --------------------------------------------
 st.markdown("""
 <style>
@@ -65,35 +71,8 @@ st.markdown("""
 
 * { font-family: 'Inter', sans-serif; }
 
-/* Enlever le header Streamlit (optionnel) */
 header[data-testid="stHeader"] {display: none;}
 footer {visibility: hidden;}
-
-/* NAVBAR ELEGANTE */
-.navbar {
-    background: #002b55;
-    padding: 14px 40px;
-    border-radius: 10px;
-    display: flex;
-    gap: 35px;
-    margin-bottom: 25px;
-}
-.nav-item {
-    color: #cdd7e1;
-    font-size: 17px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-.nav-item:hover {
-    color: #ffffff;
-}
-.nav-item.active {
-    color: #ffffff;
-    font-weight: 700;
-    border-bottom: 3px solid #1fa2ff;
-    padding-bottom: 3px;
-}
 
 /* HERO */
 .hero {
@@ -101,7 +80,7 @@ footer {visibility: hidden;}
     padding: 50px 40px;
     border-radius: 14px;
     color: white;
-    margin-top: 18px;
+    margin-top: 0px;    /* rapproché du header */
     margin-bottom: 30px;
 }
 .hero-title {
@@ -113,7 +92,6 @@ footer {visibility: hidden;}
     opacity: 0.95;
 }
 
-/* SECTION TITRES */
 .section-title {
     font-size: 26px;
     font-weight: 700;
@@ -122,7 +100,6 @@ footer {visibility: hidden;}
     margin-bottom: 10px;
 }
 
-/* CARDS */
 .card {
     background: #ffffff;
     border-radius: 12px;
@@ -144,14 +121,13 @@ footer {visibility: hidden;}
     font-size: 16px;
 }
 
-/* FOOTER */
 .footer {
     text-align: center;
     margin-top: 40px;
     font-size: 13px;
     color: gray;
 }
-/* STYLE DU BOUTON STREAMLIT */
+
 button[kind="primary"] {
     background: linear-gradient(90deg, #004a99, #0073e6) !important;
     color: white !important;
@@ -168,8 +144,6 @@ button[kind="primary"]:hover {
     background: linear-gradient(90deg, #0055b3, #0080ff) !important;
     color: white !important;
 }
-
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -186,24 +160,61 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --------------------------------------------
-# LOGOS (EN DESSOUS DU HERO)
-# --------------------------------------------
-col_logo1, col_logo2, col_logo3 = st.columns([1.5, 2, 1.5])
-with col_logo1:
-    st.image("assets/cameroun-seal.png", width=110)
-with col_logo3:
-    st.image("assets/minepat-logo.png", width=110)
 
-st.write("")
+# ============================================================
+# CONTENU APRÈS HERO
+# ============================================================
 
 # --------------------------------------------
-# MOT DU DIRECTEUR GÉNÉRAL (AVEC PHOTO)
+# MOT DU MINISTRE
+# --------------------------------------------
+st.markdown('<div class="section-title">Mot du Ministre</div>', unsafe_allow_html=True)
+
+col_min_photo, col_min_text = st.columns([1, 3])
+with col_min_photo:
+    st.image("assets/ministre.png", use_column_width=True)
+
+with col_min_text:
+    st.markdown("""
+    <div class="dg-text">
+        <h3 style="margin-bottom:5px;">Mot du Ministre de l’Économie</h3>
+        <p>
+            « Le développement de solutions numériques modernes constitue un levier essentiel
+            pour renforcer notre souveraineté économique. Ce système d’aide à la décision permet
+            d’orienter efficacement les politiques publiques en matière d’import-substitution. »
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# --------------------------------------------
+# MOT DU SECRÉTAIRE GÉNÉRAL
+# --------------------------------------------
+st.markdown('<div class="section-title">Mot du Secrétaire Général</div>', unsafe_allow_html=True)
+
+col_sg_photo, col_sg_text = st.columns([1, 3])
+with col_sg_photo:
+    st.image("assets/secretaire.jpg", use_column_width=True)
+
+with col_sg_text:
+    st.markdown("""
+    <div class="dg-text">
+        <h3 style="margin-bottom:5px;">Mot du Secrétaire Général</h3>
+        <p>
+            « Cet outil offre une vision cohérente et intégrée de la performance de nos filières
+            économiques. Il constitue un support indispensable à la coordination des actions
+            institutionnelles. »
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# --------------------------------------------
+# MOT DU DIRECTEUR GÉNÉRAL
 # --------------------------------------------
 st.markdown('<div class="section-title">Mot du Directeur Général de l’Économie</div>', unsafe_allow_html=True)
 
 col_dg_photo, col_dg_text = st.columns([1, 3])
-
 with col_dg_photo:
     st.image("assets/directeur_general.jpg", use_column_width=True)
 
@@ -212,16 +223,15 @@ with col_dg_text:
     <div class="dg-text">
         <h3 style="margin-bottom:5px;">Mot du Directeur Général de l’Économie</h3>
         <p>
-            « Ce tableau de bord innovant s’inscrit dans la vision stratégique de modernisation 
-            des systèmes d’information économiques du Cameroun. Il facilite la compréhension des 
-            tendances d’importations, renforce l’analyse des filières nationales et soutient 
-            la prise de décision au service de la souveraineté économique. »
+            « Ce tableau de bord innovant modernise le système d’information économique national
+            et améliore la prise de décision stratégique en matière d’import-substitution. »
         </p>
     </div>
     """, unsafe_allow_html=True)
 
+
 # --------------------------------------------
-# PRÉSENTATION GÉNÉRALE
+# PRÉSENTATION DE L’OUTIL
 # --------------------------------------------
 st.markdown('<div class="section-title">🎯 Présentation de l’Outil</div>', unsafe_allow_html=True)
 
@@ -232,6 +242,7 @@ st.markdown("""
     économiques du Cameroun. Il permet une prise de décision éclairée, rapide et stratégique.
 </div>
 """, unsafe_allow_html=True)
+
 
 # --------------------------------------------
 # FONCTIONNALITÉS CLÉS
@@ -250,22 +261,21 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
 # --------------------------------------------
-# BOUTON POUR ALLER AU TABLEAU DE BORD
+# BOUTON TABLEAU DE BORD
 # --------------------------------------------
 center_btn = st.columns([3, 2, 3])
-
 with center_btn[1]:
     if st.button("🚀 Accéder au Tableau de Bord", type="primary", use_container_width=True):
         st.switch_page("pages/2_Tableau_de_Bord.py")
-
 
 
 # --------------------------------------------
 # FOOTER
 # --------------------------------------------
 st.markdown("""
-<div class="footer">
+<div class="footer" style="text-align:center; margin-top:40px; font-size:13px; color:gray;">
     <hr>
     <p><strong>MINEPAT — Direction Générale de l’Économie</strong></p>
     <p>Outil d’aide à la décision pour l’import-substitution</p>
