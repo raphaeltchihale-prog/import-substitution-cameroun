@@ -138,7 +138,7 @@ fig.add_trace(go.Scatter(x=years_proj, y=sc_endo, name="Choc endogène", mode="l
 fig.update_layout(
     title=f"Scénarios du taux d’import-substitution – {produit_sel}",
     xaxis_title="Année",
-    yaxis_title="Taux (%)",
+    yaxis_title="Taux d'import-substitution (%)",
     template="plotly_white"
 )
 

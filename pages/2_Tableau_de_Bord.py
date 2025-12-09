@@ -51,13 +51,13 @@ st.title("📊 Analyse & Tableau de Bord")
 # Checkbox pour chaque série
 show_import = st.checkbox("Importation", value=True)
 show_prod = st.checkbox("Production", value=True)
-show_taux = st.checkbox("Taux", value=True)
+show_taux = st.checkbox("Taux de couverture", value=True)
 
 # Couleurs
 colors = {
     "Importation": "blue",
     "Production": "orange",
-    "Taux": "green",
+    "Taux de couverture": "green",
     "Cible PIISAH": "red"
 }
 
@@ -92,8 +92,8 @@ for produit in selected:
             x=df_p[col_annee],
             y=df_p[col_taux],
             mode="lines+markers",
-            name="Taux",
-            line=dict(color=colors["Taux"], width=3, dash='dot'),
+            name="Taux de couverture",
+            line=dict(color=colors["Taux de couverture"], width=3, dash='dot'),
             marker=dict(size=6),
             yaxis="y2"
         ))
@@ -131,7 +131,7 @@ for produit in selected:
             zeroline=True
         ),
         yaxis2=dict(
-            title="Taux",
+            title="Taux de couverture",
             overlaying="y",
             side="right",
             showgrid=False
