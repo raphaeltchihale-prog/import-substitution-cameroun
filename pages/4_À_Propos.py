@@ -36,9 +36,6 @@ st.write("Plus le taux est bas, plus la substitution des importations progresse.
 st.markdown("### **Filière**")
 st.write("Ensemble des activités économiques liées à un produit (œufs, riz, ciment, aviculture, etc.).")
 
-st.markdown("### **Taux de couverture nationale (TCN)**")
-st.write("Identique au taux de contenu local : ratio entre production nationale et demande totale.")
-
 # --------------------------------------------
 # 🧮 2. APPROCHE MÉTHODOLOGIQUE
 # --------------------------------------------
@@ -103,7 +100,7 @@ st.latex(r"V(t) = V_0 \times (1 + 0.005t)")
 st.markdown("""
 Ces scénarios s’appliquent à :
 - le taux d’import-substitution  
-- le taux de couverture (ou contenu local)  
+- le taux de contenu local  
 """)
 
 # --------------------------------------------
@@ -121,13 +118,29 @@ st.markdown("""
 # --------------------------------------------
 # 📥 5. TÉLÉCHARGEMENT
 # --------------------------------------------
+from io import BytesIO
+import pandas as pd
+import streamlit as st
+import os
+
 st.subheader("📥 Télécharger la base de données")
 
 excel_path = "BD_Global.xlsx"
 
 if os.path.exists(excel_path):
     df = pd.read_excel(excel_path)
-    excel_bytes = to_excel_bytes(df)
+
+    # Supprimer la colonne "Demande Nationale"
+    if "Demande nationale" in df.columns:
+        df = df.drop(columns=["Demande nationale"])
+
+    # Convertir le dataframe en Excel dans un buffer mémoire
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Import_Substitution")
+        # Plus besoin de writer.save() ici !
+
+    excel_bytes = output.getvalue()
 
     st.download_button(
         label="Télécharger la base de données Excel",

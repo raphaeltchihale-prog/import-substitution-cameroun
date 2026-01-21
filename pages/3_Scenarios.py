@@ -36,7 +36,7 @@ df[col_imp] = clean_numeric(df[col_imp])
 
 df = df.dropna(subset=[col_produits, col_annee, col_taux, col_prod, col_imp])
 
-# Calcul du taux de couverture
+# Calcul du taux de contenu local
 df["TC"] = df[col_prod] / (df[col_prod] + df[col_imp])
 df["TC"] = df["TC"].fillna(0)
 
@@ -109,7 +109,7 @@ sc_exo = choc_exogene(last_value, n_years)
 sc_endo = choc_endogene(last_value, n_years)
 
 # -----------------------------
-# Scénarios pour le Taux de Couverture
+# Scénarios pour le Taux de Contenu Local
 # Même logique de croissance appliquée au dernier TC
 # -----------------------------
 TC_ref = scenario_reference(last_TC, n_years)
@@ -144,7 +144,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 # -----------------------------
-# 📊 Graphique 2 : Taux de couverture nationale
+# 📊 Graphique 2 : Taux de Contenu Local nationale
 # -----------------------------
 fig_TC = go.Figure()
 
@@ -189,7 +189,7 @@ fig_TC.add_trace(go.Scatter(
 ))
 
 fig_TC.update_layout(
-    title=f"Scénarios du Taux de Couverture Nationale – {produit_sel}",
+    title=f"Scénarios du Taux de Contenu Local – {produit_sel}",
     xaxis_title="Année",
     yaxis_title="TC (ratio)",
     template="plotly_white",

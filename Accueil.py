@@ -65,7 +65,7 @@ st.markdown(f"""
 }}
 
 .fixed-header img {{
-    width: 50px;
+    width: 120px;
 }}
 
 .page-content {{
@@ -188,66 +188,52 @@ st.markdown("""
 # CONTENU APRÈS HERO
 # ============================================================
 
-# --------------------------------------------
-# MOT DU MINISTRE
-# --------------------------------------------
-st.markdown('<div class="section-title">Mot du Ministre</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Messages Institutionnels</div>', unsafe_allow_html=True)
 
-col_min_photo, col_min_text = st.columns([1, 3])
-with col_min_photo:
-    st.image("assets/ministre.png", use_column_width=True)
+col1, col2, col3 = st.columns(3)
 
-with col_min_text:
+# --------------------------------------------
+# MINISTRE
+# --------------------------------------------
+with col1:
+    st.image("assets/ministre.png", width= 280)
     st.markdown("""
-    <div class="dg-text">
-        <h3 style="margin-bottom:5px;">Mot du Ministre de l’Économie</h3>
-        <p>
-            « Le développement de solutions numériques modernes constitue un levier essentiel
-            pour renforcer notre souveraineté économique. Ce système d’aide à la décision permet
-            d’orienter efficacement les politiques publiques en matière d’import-substitution. »
+    <div style="text-align:center;">
+        <h4>Ministre de l’Économie</h4>
+        <p style="font-size:14px;">
+        « Le développement de solutions numériques modernes constitue un levier essentiel
+        pour renforcer notre souveraineté économique. »
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-
 # --------------------------------------------
-# MOT DU SECRÉTAIRE GÉNÉRAL
+# SECRÉTAIRE GÉNÉRAL
 # --------------------------------------------
-st.markdown('<div class="section-title">Mot du Secrétaire Général</div>', unsafe_allow_html=True)
+with col2:
+    st.image("assets/secretaire.jpg", width= 340)
 
-col_sg_photo, col_sg_text = st.columns([1, 3])
-with col_sg_photo:
-    st.image("assets/secretaire.jpg", use_column_width=True)
-
-with col_sg_text:
     st.markdown("""
-    <div class="dg-text">
-        <h3 style="margin-bottom:5px;">Mot du Secrétaire Général</h3>
-        <p>
-            « Cet outil offre une vision cohérente et intégrée de la performance de nos filières
-            économiques. Il constitue un support indispensable à la coordination des actions
-            institutionnelles. »
+    <div style="text-align:center;">
+        <h4>Secrétaire Général</h4>
+        <p style="font-size:14px;">
+        « Cet outil offre une vision cohérente et intégrée de la performance
+        de nos filières économiques. »
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-
 # --------------------------------------------
-# MOT DU DIRECTEUR GÉNÉRAL
+# DIRECTEUR GÉNÉRAL
 # --------------------------------------------
-st.markdown('<div class="section-title">Mot du Directeur Général de l’Économie</div>', unsafe_allow_html=True)
-
-col_dg_photo, col_dg_text = st.columns([1, 3])
-with col_dg_photo:
-    st.image("assets/directeur_general.jpg", use_column_width=True)
-
-with col_dg_text:
+with col3:
+    st.image("assets/directeur_general.jpg", width= 240)
     st.markdown("""
-    <div class="dg-text">
-        <h3 style="margin-bottom:5px;">Mot du Directeur Général de l’Économie</h3>
-        <p>
-            « Ce tableau de bord innovant modernise le système d’information économique national
-            et améliore la prise de décision stratégique en matière d’import-substitution. »
+    <div style="text-align:center;">
+        <h4>Directeur Général de l’Économie</h4>
+        <p style="font-size:14px;">
+        « Ce tableau de bord modernise le système d’information économique
+        et renforce la décision stratégique. »
         </p>
     </div>
     """, unsafe_allow_html=True)
